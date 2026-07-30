@@ -70,13 +70,12 @@
     },
     {
       "parameters": {
-        "chunkSize": 500,
-        "chunkOverlap": 50
+        "jsCode": "// Получаем текст документа из предыдущей ноды\nconst text = $input.first().json.text;\n\n// Параметры нарезки\nconst chunkSize = 500; // Размер фрагмента в символах\nconst chunkOverlap = 50; // Перекрытие между фрагментами\n\n// Массив для хранения фрагментов\nconst chunks = [];\n\n// Нарезаем текст на фрагменты\nfor (let i = 0; i < text.length; i += chunkSize - chunkOverlap) {\n  // Извлекаем фрагмент текста\n  const chunk = text.substring(i, i + chunkSize);\n  // Добавляем фрагмент, если он не пустой\n  if (chunk.trim().length > 0) {\n    chunks.push({ json: { text: chunk, chunkIndex: chunks.length } });\n  }\n}\n\n// Возвращаем массив фрагментов\nreturn chunks;"
       },
       "id": "f1a7c5e0-0001-0000-0000-000000000005",
       "name": "Нарезка на чанки",
-      "type": "n8n-nodes-base.textSplitter",
-      "typeVersion": 1,
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [550, 0]
     },
     {
