@@ -1,0 +1,45 @@
+# Игнорируемые папки Python
+venv/
+.venv/
+env/
+ENV/
+
+# Игнорируемые папки кэша Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Игнорируемые папки тестов
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Игнорируемые файлы окружения
+.env
+.env.local
+.env.production
+
+# Игнорируемые файлы IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Игнорируемые файлы macOS
+.DS_Store
+Thumbs.db
+
+# Игнорируемые логи
+*.log
+logs/
+
+# Игнорируемые временные файлы
+*.tmp
+*.bak
+*.bak.*
+
+# Игнорируемые данные (содержат реальные ключи)
+data/real_credentials.json
+credentials/
+secrets/

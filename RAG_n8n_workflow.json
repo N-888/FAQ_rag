@@ -1,0 +1,516 @@
+{
+  "name": "RAG-помощник по документам",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Ветка 1: Загрузка документов\n\nЗапускайте для загрузки документа в базу знаний.\n\n**Что делает:** разбивает текст на фрагменты, создаёт эмбеддинги, отправляет в Qdrant.",
+        "height": 334,
+        "width": 420
+      },
+      "id": "f1a7c5e0-0001-0000-0000-000000000001",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-460, -340]
+    },
+    {
+      "parameters": {},
+      "id": "f1a7c5e0-0001-0000-0000-000000000002",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [-200, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://ngapi.sberbank.ru/prod/tokens/v3/oauth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.GIGACHAT_AUTH_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "scope",
+              "value": "GIGACHAT_API_PERS"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "f1a7c5e0-0001-0000-0000-000000000003",
+      "name": "Получить токен GigaChat",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [50, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Текст документа для базы знаний компании Sun Rent\n// Содержит информацию об аренде автомобилей в Испании\nconst documentText = `Компания Sun Rent предоставляет услуги по аренде автомобилей в Испании с 2015 года. Мы работаем в 15 городах: Барселона, Мадрид, Валенсия, Малага, Тенерифе и других. Автопарк насчитывает более 500 автомобилей от эконом до премиум класса.\n\nУсловия аренды. Минимальный срок аренды — 3 дня, максимальный — 45 дней. Для подтверждения бронирования нужна предоплата 25% от стоимости. Полная оплата — при получении автомобиля. Принимаем карты Visa, MasterCard и МИР.\n\nТребования к арендатору. Минимальный возраст — 21 год, стаж вождения — от 2 лет. Нужны водительское удостоверение международного образца и паспорт. Для автомобилей премиум класса минимальный возраст — 25 лет.\n\nСтраховка. Базовая страховка включена в стоимость — покрывает ДТП и кражу. Полная страховка без франшизы — 15 евро в сутки. Страховка не покрывает ущерб от алкоголя и нарушений ПДД.\n\nВозврат автомобиля. Верните автомобиль в том же состоянии. Заправка за счёт арендатора. При неполном баке доплата 50 евро. Возврат в другом городе — 75 евро.\n\nДополнительные услуги. Детское кресло — 8 евро/сутки. Навигатор — 5 евро/сутки. Дополнительный водитель — 10 евро/сутки. Доставка в аэропорт — 25 евро. Зимние шины (ноябрь-март) — 7 евро/сутки.\n\nОтмена бронирования. За 72+ часа — полный возврат. За 24-72 часа — 50% возврат. Менее 24 часов — предоплата не возвращается.\n\nКонтакты. Телефон: +34 900 123 456. Email: support@sunrent.ru. WhatsApp: +34 600 123 456. Работаем ежедневно 9:00-21:00 по мадридскому времени.`;\n\n// Возвращаем документ в формате, понятном для n8n\nreturn [{ json: { text: documentText } }];"
+      },
+      "id": "f1a7c5e0-0001-0000-0000-000000000004",
+      "name": "Документ",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [300, 0]
+    },
+    {
+      "parameters": {
+        "chunkSize": 500,
+        "chunkOverlap": 50
+      },
+      "id": "f1a7c5e0-0001-0000-0000-000000000005",
+      "name": "Нарезка на чанки",
+      "type": "n8n-nodes-base.textSplitter",
+      "typeVersion": 1,
+      "position": [550, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Получаем токен авторизации из предыдущей ноды\nconst token = $input.first().json.body.access_token;\n\n// Проходим по всем фрагментам документа\nconst items = $input.all();\nconst results = [];\n\nfor (const item of items) {\n  // К каждому фрагменту добавляем токен для последующей авторизации\n  results.push({\n    json: {\n      text: item.json.text || item.json.chunk,\n      token: token\n    }\n  });\n}\n\n// Возвращаем массив фрагментов с токеном\nreturn results;"
+      },
+      "id": "f1a7c5e0-0001-0000-0000-000000000006",
+      "name": "Добавить токен к чанкам",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [800, 0]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://ngapi.sberbank.ru/prod/v1/embeddings",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ input: $json.text, model: 'Embeddings' }) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "f1a7c5e0-0001-0000-0000-000000000007",
+      "name": "Создать эмбеддинг",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1050, 0]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Получаем результаты создания эмбеддингов\nconst items = $input.all();\n\n// Получаем исходные фрагменты с текстом из предыдущей ноды\nconst prevItems = $('Добавить токен к чанкам').all();\n\n// Массив для хранения точек, готовых к загрузке в Qdrant\nconst points = [];\n\n// Проходим по каждому результату эмбеддинга\nfor (let i = 0; i < items.length; i++) {\n  // Извлекаем вектор (эмбеддинг) из ответа API\n  const embedding = items[i].json.body?.data?.[0]?.embedding;\n  // Извлекаем соответствующий текст фрагмента\n  const text = prevItems[i]?.json?.text;\n\n  // Если и вектор, и текст успешно извлечены\n  if (embedding && text) {\n    // Формируем точку для Qdrant: id, вектор и текст в payload\n    points.push({\n      id: i + 1,\n      vector: embedding,\n      payload: { text: text, source: 'faq' }\n    });\n  }\n}\n\n// Возвращаем собранные точки и их количество\nreturn [{ json: { points: points, count: points.length } }];"
+      },
+      "id": "f1a7c5e0-0001-0000-0000-000000000008",
+      "name": "Собрать точки",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1300, 0]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://{{ $env.QDRANT_ENDPOINT }}/collections/{{ $env.QDRANT_COLLECTION }}/points",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{ $env.QDRANT_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ points: $json.points }) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "f1a7c5e0-0001-0000-0000-000000000009",
+      "name": "Отправить в Qdrant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1550, 0]
+    },
+    {
+      "parameters": {
+        "content": "## Ветка 2: Обработка вопросов\n\nПишите вопрос в чат — получайте ответ из базы знаний.\n\n**Что делает:** ищет релевантные фрагменты, генерирует ответ через LLM.",
+        "height": 334,
+        "width": 420
+      },
+      "id": "f1a7c5e0-0002-0000-0000-000000000001",
+      "name": "Sticky Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [-460, 340]
+    },
+    {
+      "parameters": {},
+      "id": "f1a7c5e0-0002-0000-0000-000000000002",
+      "name": "Chat Trigger",
+      "type": "n8n-nodes-base.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [-200, 600]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://ngapi.sberbank.ru/prod/tokens/v3/oauth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{$env.GIGACHAT_AUTH_KEY}}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "scope",
+              "value": "GIGACHAT_API_PERS"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "f1a7c5e0-0002-0000-0000-000000000003",
+      "name": "Токен GigaChat (для вопроса)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [50, 600]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Извлекаем текст вопроса из чата\nconst query = $input.first().json.chatInput;\n\n// Получаем токен авторизации из предыдущей ноды\nconst token = $('Токен GigaChat (для вопроса)').first().json.body.access_token;\n\n// Возвращаем объект с вопросом и токеном\nreturn [{ json: { query: query, token: token } }];"
+      },
+      "id": "f1a7c5e0-0002-0000-0000-000000000004",
+      "name": "Подготовка",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [300, 600]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://ngapi.sberbank.ru/prod/v1/embeddings",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ input: $json.query, model: 'Embeddings' }) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "f1a7c5e0-0002-0000-0000-000000000005",
+      "name": "Эмбеддинг вопроса",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [550, 600]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Извлекаем вектор вопроса из ответа API эмбеддингов\nconst vector = $input.first().json.body?.data?.[0]?.embedding;\n\n// Получаем исходный текст вопроса из ноды подготовки\nconst query = $('Подготовка').first().json.query;\n\n// Возвращаем вектор и вопрос для поиска в Qdrant\nreturn [{ json: { vector: vector, query: query } }];"
+      },
+      "id": "f1a7c5e0-0002-0000-0000-000000000006",
+      "name": "Собрать запрос",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [800, 600]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $env.QDRANT_ENDPOINT }}/collections/{{ $env.QDRANT_COLLECTION }}/points/search",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api-key",
+              "value": "={{ $env.QDRANT_API_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ vector: $json.vector, top: 4, with_payload: true }) }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "f1a7c5e0-0002-0000-0000-000000000007",
+      "name": "Поиск в Qdrant",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1050, 600]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Получаем результаты поиска из Qdrant\nconst results = $input.first().json.body?.result;\n\n// Получаем исходный вопрос пользователя\nconst query = $('Собрать запрос').first().json.query;\n\n// Если результатов нет — сообщаем об этом\nif (!results || results.length === 0) {\n  return [{ json: { context: 'Информация не найдена', query: query, found: false } }];\n}\n\n// Собираем тексты найденных фрагментов в один контекст\nconst ctx = results.map((r, i) => `[${i+1}] ${r.payload?.text}`).join('\\n\\n');\n\n// Возвращаем собранный контекст и вопрос\nreturn [{ json: { context: ctx, query: query, found: true } }];"
+      },
+      "id": "f1a7c5e0-0002-0000-0000-000000000008",
+      "name": "Подготовить контекст",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1300, 600]
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "mergeByFields": {
+          "values": [
+            {
+              "name1": "query",
+              "name2": "query"
+            }
+          ]
+        },
+        "combinationMode": "multiplex"
+      },
+      "id": "f1a7c5e0-0002-0000-0000-000000000009",
+      "name": "Merge",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2.1,
+      "position": [1550, 600]
+    },
+    {
+      "parameters": {
+        "messages": [
+          {
+            "content": "=Ты — помощник компании Sun Rent по аренде автомобилей в Испании.\n\nПравила:\n1. Отвечай ТОЛЬКО на основе контекста ниже\n2. Если информации нет — скажи «В базе знаний нет информации по этому вопросу»\n3. НЕ придумывай ответ!\n4. Отвечай кратко, 1-3 предложения\n5. Будь вежливым\n\n---\nКОНТЕКСТ:\n{{ $json.context }}\n---\n\nВОПРОС: {{ $json.query }}\n\nОТВЕТЬ:"
+          }
+        ],
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "f1a7c5e0-0002-0000-0000-000000000010",
+      "name": "LLM (Qwen/YandexGPT)",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.2,
+      "position": [1800, 600]
+    }
+  ],
+  "connections": {
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Получить токен GigaChat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Получить токен GigaChat": {
+      "main": [
+        [
+          {
+            "node": "Документ",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Документ": {
+      "main": [
+        [
+          {
+            "node": "Нарезка на чанки",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Нарезка на чанки": {
+      "main": [
+        [
+          {
+            "node": "Добавить токен к чанкам",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Добавить токен к чанкам": {
+      "main": [
+        [
+          {
+            "node": "Создать эмбеддинг",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Создать эмбеддинг": {
+      "main": [
+        [
+          {
+            "node": "Собрать точки",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Собрать точки": {
+      "main": [
+        [
+          {
+            "node": "Отправить в Qdrant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Trigger": {
+      "main": [
+        [
+          {
+            "node": "Токен GigaChat (для вопроса)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Токен GigaChat (для вопроса)": {
+      "main": [
+        [
+          {
+            "node": "Подготовка",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Подготовка": {
+      "main": [
+        [
+          {
+            "node": "Эмбеддинг вопроса",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Эмбеддинг вопроса": {
+      "main": [
+        [
+          {
+            "node": "Собрать запрос",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Собрать запрос": {
+      "main": [
+        [
+          {
+            "node": "Поиск в Qdrant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Поиск в Qdrant": {
+      "main": [
+        [
+          {
+            "node": "Подготовить контекст",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Подготовить контекст": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "LLM (Qwen/YandexGPT)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
