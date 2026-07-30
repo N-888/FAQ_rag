@@ -1,8 +1,10 @@
-# FAQ RAG
+# FAQ RAG — ИИ-помощник по документам
 
 ![n8n](https://img.shields.io/badge/n8n-Workflow%20Automation-EA4B71?style=for-the-badge&logo=n8n&logoColor=white)
 ![Qdrant](https://img.shields.io/badge/Qdrant-Vector%20DB-FF6B35?style=for-the-badge&logo=qdrant&logoColor=white)
 ![GigaChat](https://img.shields.io/badge/GigaChat-Sber-00A3E0?style=for-the-badge)
+
+> Умный помощник, который отвечает на вопросы по документам компании, используя технологию RAG
 
 ---
 
