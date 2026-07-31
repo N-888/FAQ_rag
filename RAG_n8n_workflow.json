@@ -149,7 +149,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const results = $input.first().json.body?.result;\nconst query = $('Подготовка').first().json.query;\n\nif (!results || results.length === 0) {\n  return [{ json: { context: 'Информация не найдена', query: query, found: false } }];\n}\n\nconst ctx = results.map((r, i) => `[${i+1}] ${r.payload?.text}`).join('\\n\\n');\n\nreturn [{ json: { context: ctx, query: query, found: true } }];"
+        "jsCode": "const results = $input.first().json.body?.result || $input.first().json.result;\nconst query = $('Подготовка').first().json.query;\n\nif (!results || results.length === 0) {\n  return [{ json: { context: 'Информация не найдена', query: query, found: false } }];\n}\n\nconst ctx = results.map((r, i) => `[${i+1}] ${r.payload?.text}`).join('\\n\\n');\n\nreturn [{ json: { context: ctx, query: query, found: true } }];"
       },
       "id": "f1a7c5e0-0002-0000-0000-000000000008",
       "name": "Подготовить контекст",
