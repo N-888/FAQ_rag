@@ -3,7 +3,7 @@
   "nodes": [
     {
       "parameters": {
-        "content": "## Ветка 1: Загрузка документов\n\nЗапускайте для загрузки документа в базу знаний.\n\n**Что делает:** разбивает текст на фрагменты, создаёт эмбеддинги, отправляет в Qdrant.",
+        "content": "## Ветка 1: Загрузка документов\n\nЗапускайте для загрузки документа в базу знаний.",
         "height": 334,
         "width": 420
       },
@@ -43,7 +43,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nconst VECTOR_SIZE = 2056;\n\nfunction simpleEmbed(text, size) {\n  const vector = new Array(size).fill(0);\n  const words = text.toLowerCase().replace(/[^\\u0430-\\u044f\\u0451a-z0-9\\s]/g, ' ').split(/\\s+/).filter(w => w.length > 1);\n  for (const word of words) {\n    let hash = 0;\n    for (let i = 0; i < word.length; i++) {\n      hash = ((hash << 5) - hash + word.charCodeAt(i)) | 0;\n    }\n    const idx = Math.abs(hash) % size;\n    vector[idx] += 1;\n  }\n  const norm = Math.sqrt(vector.reduce((s, v) => s + v * v, 0));\n  if (norm > 0) {\n    for (let i = 0; i < size; i++) vector[i] /= norm;\n  }\n  return vector;\n}\n\nconst points = [];\nfor (let i = 0; i < items.length; i++) {\n  const text = items[i].json.text;\n  const vector = simpleEmbed(text, VECTOR_SIZE);\n  points.push({\n    id: i + 1,\n    vector: vector,\n    payload: { text: text, source: 'faq' }\n  });\n}\n\nreturn [{ json: { points: points, count: points.length } }];"
+        "jsCode": "const items = $input.all();\nconst VECTOR_SIZE = 256;\n\nfunction textToVector(text, size) {\n  const vector = new Array(size).fill(0);\n  const normalized = text.toLowerCase().replace(/[^а-яёa-z0-9]/g, ' ');\n  const words = normalized.split(/\\s+/).filter(w => w.length > 0);\n  for (const word of words) {\n    for (let i = 0; i < word.length; i++) {\n      const ch = word.charCodeAt(i);\n      vector[ch % size] += 1;\n      vector[(ch * 31) % size] += 0.5;\n    }\n  }\n  const norm = Math.sqrt(vector.reduce((s, v) => s + v * v, 0));\n  if (norm > 0) {\n    for (let i = 0; i < size; i++) vector[i] /= norm;\n  }\n  return vector;\n}\n\nconst points = [];\nfor (let i = 0; i < items.length; i++) {\n  const text = items[i].json.text;\n  const vector = textToVector(text, VECTOR_SIZE);\n  points.push({\n    id: i + 1,\n    vector: vector,\n    payload: { text: text, source: 'faq' }\n  });\n}\n\nreturn [{ json: { points: points, count: points.length } }];"
       },
       "id": "f1a7c5e0-0001-0000-0000-000000000007",
       "name": "Создать эмбеддинг",
@@ -109,10 +109,10 @@
     },
     {
       "parameters": {
-        "jsCode": "const query = $input.first().json.body?.query || $input.first().json.query || 'тест';\nconst VECTOR_SIZE = 2056;\n\nfunction simpleEmbed(text, size) {\n  const vector = new Array(size).fill(0);\n  const words = text.toLowerCase().replace(/[^\\u0430-\\u044f\\u0451a-z0-9\\s]/g, ' ').split(/\\s+/).filter(w => w.length > 1);\n  for (const word of words) {\n    let hash = 0;\n    for (let i = 0; i < word.length; i++) {\n      hash = ((hash << 5) - hash + word.charCodeAt(i)) | 0;\n    }\n    const idx = Math.abs(hash) % size;\n    vector[idx] += 1;\n  }\n  const norm = Math.sqrt(vector.reduce((s, v) => s + v * v, 0));\n  if (norm > 0) {\n    for (let i = 0; i < size; i++) vector[i] /= norm;\n  }\n  return vector;\n}\n\nconst vector = simpleEmbed(query, VECTOR_SIZE);\n\nreturn [{ json: { query: query, vector: vector } }];"
+        "jsCode": "const query = $input.first().json.body?.query || $input.first().json.query || '';\nreturn [{ json: { query: query } }];"
       },
       "id": "f1a7c5e0-0002-0000-0000-000000000004",
-      "name": "Эмбеддинг вопроса",
+      "name": "Подготовка",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [100, 600]
@@ -120,7 +120,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://8594b6c3-c7cd-41fa-8072-f20e70100ddb.sa-east-1-0.aws.cloud.qdrant.io/collections/faq_documents/points/search",
+        "url": "https://8594b6c3-c7cd-41fa-8072-f20e70100ddb.sa-east-1-0.aws.cloud.qdrant.io/collections/faq_documents/points/scroll",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -136,23 +136,23 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ vector: $json.vector, top: 4, with_payload: true }) }}",
+        "jsonBody": "={{ JSON.stringify({ limit: 100, with_payload: true, with_vector: false }) }}",
         "options": {
           "timeout": 30000
         }
       },
       "id": "f1a7c5e0-0002-0000-0000-000000000007",
-      "name": "Поиск в Qdrant",
+      "name": "Получить документы из Qdrant",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [350, 600]
     },
     {
       "parameters": {
-        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst results = body.result || [];\nconst query = $('Эмбеддинг вопроса').first().json.query;\nconst THRESHOLD = 0.3;\n\nconst filtered = results.filter(r => r.score >= THRESHOLD);\n\nif (filtered.length === 0) {\n  return [{ json: { context: '', query: query, found: false } }];\n}\n\nconst ctx = filtered.map((r, i) => `[${i+1}] ${r.payload?.text}`).join('\\n\\n');\n\nreturn [{ json: { context: ctx, query: query, found: true } }];"
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst result = body.result || {};\nconst points = result.points || [];\nconst query = $('Подготовка').first().json.query;\n\nconst queryWords = query.toLowerCase().replace(/[^а-яёa-z0-9\\s]/g, ' ').split(/\\s+/).filter(w => w.length > 2);\n\nconst scored = [];\nfor (const p of points) {\n  const text = (p.payload?.text || '').toLowerCase();\n  let score = 0;\n  for (const word of queryWords) {\n    if (text.includes(word)) score += 1;\n  }\n  if (score > 0) {\n    scored.push({ text: p.payload.text, score: score });\n  }\n}\n\nscored.sort((a, b) => b.score - a.score);\nconst top = scored.slice(0, 4);\n\nif (top.length === 0) {\n  return [{ json: { context: '', query: query, found: false } }];\n}\n\nconst ctx = top.map((s, i) => s.text).join('\\n\\n');\nreturn [{ json: { context: ctx, query: query, found: true } }];"
       },
       "id": "f1a7c5e0-0002-0000-0000-000000000008",
-      "name": "Подготовить контекст",
+      "name": "Поиск по тексту",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [600, 600]
@@ -176,7 +176,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const query = $('Подготовить контекст').first().json.query;\nconst context = $('Подготовить контекст').first().json.context;\nreturn [{ json: { answer: 'К сожалению, в базе знаний нет информации по данному запросу.', query: query, found: false } }];"
+        "jsCode": "const query = $('Поиск по тексту').first().json.query;\nreturn [{ json: { answer: 'К сожалению, в базе знаний нет информации по данному запросу.', query: query, found: false } }];"
       },
       "id": "f1a7c5e0-0002-0000-0000-000000000016",
       "name": "Ответ не найдено",
@@ -186,7 +186,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const query = $('Подготовить контекст').first().json.query;\nconst context = $('Подготовить контекст').first().json.context;\nreturn [{ json: { query: query, context: context } }];"
+        "jsCode": "const query = $('Поиск по тексту').first().json.query;\nconst context = $('Поиск по тексту').first().json.context;\nreturn [{ json: { query: query, context: context } }];"
       },
       "id": "f1a7c5e0-0002-0000-0000-000000000011",
       "name": "Подготовить промпт",
@@ -237,7 +237,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const token = $input.first().json.body?.access_token || $input.first().json.access_token;\nconst prev = $('Подготовить промпт').first().json;\nconst prompt = `Ты — помощник по базе знаний компании Sun Rent. Отвечай на основе предоставленного контекста. Если информации нет в контексте — скажи об этом.\\n\\nКонтекст:\\n${prev.context}\\n\\nВопрос: ${prev.query}\\n\\nОтвет:`;\nreturn [{ json: { token: token, prompt: prompt } }];"
+        "jsCode": "const token = $input.first().json.body?.access_token || $input.first().json.access_token;\nconst prev = $('Подготовить промпт').first().json;\nconst prompt = `Ты — помощник по базе знаний компании Sun Rent. Отвечай на основе предоставленного контекста. Если информации нет в контексте — скажи об этом.\n\nКонтекст:\n${prev.context}\n\nВопрос: ${prev.query}\n\nОтвет:`;\nreturn [{ json: { token: token, prompt: prompt } }];"
       },
       "id": "f1a7c5e0-0002-0000-0000-000000000013",
       "name": "Объединить",
@@ -312,15 +312,15 @@
       "main": [[{"node": "Отправить в Qdrant", "type": "main", "index": 0}]]
     },
     "Webhook": {
-      "main": [[{"node": "Эмбеддинг вопроса", "type": "main", "index": 0}]]
+      "main": [[{"node": "Подготовка", "type": "main", "index": 0}]]
     },
-    "Эмбеддинг вопроса": {
-      "main": [[{"node": "Поиск в Qdrant", "type": "main", "index": 0}]]
+    "Подготовка": {
+      "main": [[{"node": "Получить документы из Qdrant", "type": "main", "index": 0}]]
     },
-    "Поиск в Qdrant": {
-      "main": [[{"node": "Подготовить контекст", "type": "main", "index": 0}]]
+    "Получить документы из Qdrant": {
+      "main": [[{"node": "Поиск по тексту", "type": "main", "index": 0}]]
     },
-    "Подготовить контекст": {
+    "Поиск по тексту": {
       "main": [[{"node": "Если найдено", "type": "main", "index": 0}]]
     },
     "Если найдено": {
