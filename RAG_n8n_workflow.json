@@ -87,10 +87,12 @@
     },
     {
       "parameters": {
-        "httpMethod": "POST",
+        "httpMethod": "GET",
         "path": "rag-question",
         "responseMode": "responseNode",
-        "options": {}
+        "options": {
+          "rawBody": true
+        }
       },
       "id": "f1a7c5e0-0002-0000-0000-000000000002",
       "name": "Webhook",
@@ -101,7 +103,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const query = $input.first().json.body?.query || $input.first().json.query || '';\nreturn [{ json: { query: query } }];"
+        "jsCode": "const query = $input.first().json.query?.query || $input.first().json.body?.query || $input.first().json.query || '';\nreturn [{ json: { query: query } }];"
       },
       "id": "f1a7c5e0-0002-0000-0000-000000000004",
       "name": "Подготовка",
