@@ -53,12 +53,24 @@
     },
     {
       "parameters": {
-        "jsCode": "const points = $input.first().json.points;\nconst resp = await this.helpers.httpRequest({\n  method: 'POST',\n  url: 'https://8594b6c3-c7cd-41fa-8072-f20e70100ddb.sa-east-1-0.aws.cloud.qdrant.io/collections/faq_documents/points',\n  headers: {\n    'api-key': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIiwic3ViamVjdCI6ImFwaS1rZXk6ZDViYzRiYTktYzc5ZC00ZDgzLThmMWItY2EyNTQ1MGIyMmRkIn0.BK6bb5SOkDhRX59rUaju53GP5YuTQUuZoZO-SHmHNXY',\n    'Content-Type': 'application/json'\n  },\n  body: { points: points },\n  json: true,\n  timeout: 30000,\n  rejectUnauthorized: false\n});\nreturn [{ json: resp }];"
+        "method": "PUT",
+        "url": "https://8594b6c3-c7cd-41fa-8072-f20e70100ddb.sa-east-1-0.aws.cloud.qdrant.io/collections/faq_documents/points",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "api-key", "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIiwic3ViamVjdCI6ImFwaS1rZXk6ZDViYzRiYTktYzc5ZC00ZDgzLThmMWItY2EyNTQ1MGIyMmRkIn0.BK6bb5SOkDhRX59rUaju53GP5YuTQUuZoZO-SHmHNXY" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ points: $json.points }) }}",
+        "options": { "timeout": 30000 }
       },
       "id": "f1a7c5e0-0001-0000-0000-000000000009",
       "name": "Отправить в Qdrant",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [850, 0]
     },
     {
@@ -101,12 +113,24 @@
     },
     {
       "parameters": {
-        "jsCode": "const resp = await this.helpers.httpRequest({\n  method: 'POST',\n  url: 'https://8594b6c3-c7cd-41fa-8072-f20e70100ddb.sa-east-1-0.aws.cloud.qdrant.io/collections/faq_documents/points/scroll',\n  headers: {\n    'api-key': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIiwic3ViamVjdCI6ImFwaS1rZXk6ZDViYzRiYTktYzc5ZC00ZDgzLThmMWItY2EyNTQ1MGIyMmRkIn0.BK6bb5SOkDhRX59rUaju53GP5YuTQUuZoZO-SHmHNXY',\n    'Content-Type': 'application/json'\n  },\n  body: { limit: 100, with_payload: true, with_vector: false },\n  json: true,\n  timeout: 30000,\n  rejectUnauthorized: false\n});\nreturn [{ json: resp }];"
+        "method": "POST",
+        "url": "https://8594b6c3-c7cd-41fa-8072-f20e70100ddb.sa-east-1-0.aws.cloud.qdrant.io/collections/faq_documents/points/scroll",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "api-key", "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIiwic3ViamVjdCI6ImFwaS1rZXk6ZDViYzRiYTktYzc5ZC00ZDgzLThmMWItY2EyNTQ1MGIyMmRkIn0.BK6bb5SOkDhRX59rUaju53GP5YuTQUuZoZO-SHmHNXY" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ limit: 100, with_payload: true, with_vector: false }) }}",
+        "options": { "timeout": 30000 }
       },
       "id": "f1a7c5e0-0002-0000-0000-000000000007",
       "name": "Получить документы из Qdrant",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
       "position": [350, 600]
     },
     {
