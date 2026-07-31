@@ -3,7 +3,7 @@
   "nodes": [
     {
       "parameters": {
-        "content": "## Ветка 1: Загрузка документов\n\nЗапускайте для загрузки документа в базу знаний.",
+        "content": "## Ветка 1: Загрузка документов\n\nЗапускайте для загрузки документа в базу знаний.\n\n**Что делает:** разбивает текст на фрагменты, создаёт эмбеддинги, отправляет в Qdrant.",
         "height": 334,
         "width": 420
       },
@@ -23,7 +23,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const documentText = `Компания Sun Rent предоставляет услуги по аренде автомобилей в Испании с 2015 года. Мы работаем в 15 городах: Барселона, Мадрид, Валенсия, Малага, Тенерифе и других. Автопарк насчитывает более 500 автомобилей от эконом до премиум класса.\n\nУсловия аренды. Минимальный срок аренды — 3 дня, максимальный — 45 дней. Для подтверждения бронирования нужна предоплата 25% от стоимости. Полная оплата — при получении автомобиля. Принимаем карты Visa, MasterCard и МИР.\n\nТребования к арендатору. Минимальный возраст — 21 год, стаж вождения — от 2 лет. Нужны водительское удостоверение международного образца и паспорт. Для автомобилей премиум класса минимальный возраст — 25 лет.\n\nСтраховка. Базовая страховка включена в стоимость — покрывает ДТП и кражу. Полная страховка без франшизы — 15 евро в сутки. Страховка не покрывает ущерб от алкоголя и нарушений ПДД.\n\nВозврат автомобиля. Верните автомобиль в том же состоянии. Заправка за счёт арендатора. При неполном баке доплата 50 евро. Возврат в другом городе — 75 евро.\n\nДополнительные услуги. Детское кресло — 8 евро/сутки. Навигатор — 5 евро/сутки. Дополнительный водитель — 10 евро/сутки. Доставка в аэропорт — 25 евро. Зимние шины (ноябрь-март) — 7 евро/сутки.\n\nОтмена бронирования. За 72+ часа — полный возврат. За 24-72 часа — 50% возврат. Менее 24 часов — предоплата не возвращается.\n\nКонтакты. Телефон: +34 900 123 456. Email: support@sunrent.ru. WhatsApp: +34 600 123 456. Работаем ежедневно 9:00-21:00 по мадридскому времени.`;\n\nreturn [{ json: { text: documentText } }];"
+        "jsCode": "const documentText = `Компания Sun Rent предоставляет услуги по аренде автомобилей в Испании с 2015 года. Мы работаем в 15 городах: Барселона, Мадрид, Валенсия, Малага, Тенерифе, Севилья, Гранада, Бильбао, Вальядолид, Сарагоса, Аликанте, Малага, Памплона, Сан-Себастьян и Барселона. Автопарк насчитывает более 500 автомобилей от эконом до премиум класса.\n\nУсловия аренды. Минимальный срок аренды — 3 дня, максимальный — 45 дней. Для подтверждения бронирования нужна предоплата 25% от стоимости. Полная оплата — при получении автомобиля. Принимаем карты Visa, MasterCard и МИР. Стоимость аренды начинается от 25 евро в сутки за экономкласс и до 120 евро в сутки за премиум. В стоимость включены базовая страховка и неограниченный пробег.\n\nТребования к арендатору. Минимальный возраст — 21 год, стаж вождения — от 2 лет. Нужны водительское удостоверение международного образца и паспорт. Для автомобилей премиум класса минимальный возраст — 25 лет. Дополнительный водитель может быть добавлен за 10 евро в сутки.\n\nСтраховка. Базовая страховка включена в стоимость — покрывает ДТП и кражу. Полная страховка без франшизы — 15 евро в сутки. Страховка не покрывает ущерб от алкоголя и нарушений ПДД. Страховка от несчастных случаев — 5 евро в сутки.\n\nВозврат автомобиля. Верните автомобиль в том же состоянии. Заправка за счёт арендатора. При неполном баке доплата 50 евро. Возврат в другом городе — 75 евро. Возврат в нерабочее время — 30 евро. Штраф за просрочку возврата — двойная стоимость аренды за каждый день.\n\nДополнительные услуги. Детское кресло — 8 евро/сутки. Навигатор — 5 евро/сутки. Дополнительный водитель — 10 евро/сутки. Доставка в аэропорт — 25 евро. Зимние шины (ноябрь-март) — 7 евро/сутки. Багажник на крышу — 6 евро/сутки.\n\nОтмена бронирования. За 72+ часа — полный возврат. За 24-72 часа — 50% возврат. Менее 24 часов — предоплата не возвращается. Бесплатная отмена возможна в течение 24 часов после бронирования.\n\nКонтакты. Телефон: +34 900 123 456. Email: support@sunrent.ru. WhatsApp: +34 600 123 456. Работаем ежедневно 9:00-21:00 по мадридскому времени. Адрес офиса: Calle Gran Via 42, Barcelona 08015.`;\n\nreturn [{ json: { text: documentText } }];"
       },
       "id": "f1a7c5e0-0001-0000-0000-000000000004",
       "name": "Документ",
@@ -43,7 +43,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nconst VECTOR_SIZE = 128;\n\nfunction simpleEmbed(text, size) {\n  const vector = new Array(size).fill(0);\n  const words = text.toLowerCase().replace(/[^а-яёa-z0-9\\s]/g, ' ').split(/\\s+/).filter(w => w.length > 1);\n  for (const word of words) {\n    let hash = 0;\n    for (let i = 0; i < word.length; i++) {\n      hash = ((hash << 5) - hash + word.charCodeAt(i)) | 0;\n    }\n    const idx = Math.abs(hash) % size;\n    vector[idx] += 1;\n  }\n  const norm = Math.sqrt(vector.reduce((s, v) => s + v * v, 0));\n  if (norm > 0) {\n    for (let i = 0; i < size; i++) vector[i] /= norm;\n  }\n  return vector;\n}\n\nconst points = [];\nfor (let i = 0; i < items.length; i++) {\n  const text = items[i].json.text;\n  const vector = simpleEmbed(text, VECTOR_SIZE);\n  points.push({\n    id: i + 1,\n    vector: vector,\n    payload: { text: text, source: 'faq' }\n  });\n}\n\nreturn [{ json: { points: points, count: points.length } }];"
+        "jsCode": "const items = $input.all();\nconst VECTOR_SIZE = 2056;\n\nfunction simpleEmbed(text, size) {\n  const vector = new Array(size).fill(0);\n  const words = text.toLowerCase().replace(/[^\\u0430-\\u044f\\u0451a-z0-9\\s]/g, ' ').split(/\\s+/).filter(w => w.length > 1);\n  for (const word of words) {\n    let hash = 0;\n    for (let i = 0; i < word.length; i++) {\n      hash = ((hash << 5) - hash + word.charCodeAt(i)) | 0;\n    }\n    const idx = Math.abs(hash) % size;\n    vector[idx] += 1;\n  }\n  const norm = Math.sqrt(vector.reduce((s, v) => s + v * v, 0));\n  if (norm > 0) {\n    for (let i = 0; i < size; i++) vector[i] /= norm;\n  }\n  return vector;\n}\n\nconst points = [];\nfor (let i = 0; i < items.length; i++) {\n  const text = items[i].json.text;\n  const vector = simpleEmbed(text, VECTOR_SIZE);\n  points.push({\n    id: i + 1,\n    vector: vector,\n    payload: { text: text, source: 'faq' }\n  });\n}\n\nreturn [{ json: { points: points, count: points.length } }];"
       },
       "id": "f1a7c5e0-0001-0000-0000-000000000007",
       "name": "Создать эмбеддинг",
@@ -83,7 +83,7 @@
     },
     {
       "parameters": {
-        "content": "## Ветка 2: Обработка вопросов\n\nПишите вопрос через Webhook — получайте ответ из базы знаний.",
+        "content": "## Ветка 2: Обработка вопросов\n\nОтправляйте вопрос через Webhook — получайте ответ от LLM на основе базы знаний.",
         "height": 334,
         "width": 420
       },
@@ -109,10 +109,10 @@
     },
     {
       "parameters": {
-        "jsCode": "const query = $input.first().json.body?.query || $input.first().json.query || 'тест';\nconst VECTOR_SIZE = 128;\n\nfunction simpleEmbed(text, size) {\n  const vector = new Array(size).fill(0);\n  const words = text.toLowerCase().replace(/[^а-яёa-z0-9\\s]/g, ' ').split(/\\s+/).filter(w => w.length > 1);\n  for (const word of words) {\n    let hash = 0;\n    for (let i = 0; i < word.length; i++) {\n      hash = ((hash << 5) - hash + word.charCodeAt(i)) | 0;\n    }\n    const idx = Math.abs(hash) % size;\n    vector[idx] += 1;\n  }\n  const norm = Math.sqrt(vector.reduce((s, v) => s + v * v, 0));\n  if (norm > 0) {\n    for (let i = 0; i < size; i++) vector[i] /= norm;\n  }\n  return vector;\n}\n\nconst vector = simpleEmbed(query, VECTOR_SIZE);\n\nreturn [{ json: { query: query, vector: vector } }];"
+        "jsCode": "const query = $input.first().json.body?.query || $input.first().json.query || 'тест';\nconst VECTOR_SIZE = 2056;\n\nfunction simpleEmbed(text, size) {\n  const vector = new Array(size).fill(0);\n  const words = text.toLowerCase().replace(/[^\\u0430-\\u044f\\u0451a-z0-9\\s]/g, ' ').split(/\\s+/).filter(w => w.length > 1);\n  for (const word of words) {\n    let hash = 0;\n    for (let i = 0; i < word.length; i++) {\n      hash = ((hash << 5) - hash + word.charCodeAt(i)) | 0;\n    }\n    const idx = Math.abs(hash) % size;\n    vector[idx] += 1;\n  }\n  const norm = Math.sqrt(vector.reduce((s, v) => s + v * v, 0));\n  if (norm > 0) {\n    for (let i = 0; i < size; i++) vector[i] /= norm;\n  }\n  return vector;\n}\n\nconst vector = simpleEmbed(query, VECTOR_SIZE);\n\nreturn [{ json: { query: query, vector: vector } }];"
       },
       "id": "f1a7c5e0-0002-0000-0000-000000000004",
-      "name": "Подготовка",
+      "name": "Эмбеддинг вопроса",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [100, 600]
@@ -136,7 +136,7 @@
         },
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ vector: $json.vector, top: 3, with_payload: true }) }}",
+        "jsonBody": "={{ JSON.stringify({ vector: $json.vector, top: 4, with_payload: true }) }}",
         "options": {
           "timeout": 30000
         }
@@ -149,7 +149,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const results = $input.first().json.body?.result || $input.first().json.result;\nconst query = $('Подготовка').first().json.query;\n\nif (!results || results.length === 0) {\n  return [{ json: { context: 'Информация не найдена', query: query, found: false } }];\n}\n\nconst ctx = results.map((r, i) => `[${i+1}] ${r.payload?.text}`).join('\\n\\n');\n\nreturn [{ json: { context: ctx, query: query, found: true } }];"
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst results = body.result || [];\nconst query = $('Эмбеддинг вопроса').first().json.query;\nconst THRESHOLD = 0.3;\n\nconst filtered = results.filter(r => r.score >= THRESHOLD);\n\nif (filtered.length === 0) {\n  return [{ json: { context: '', query: query, found: false } }];\n}\n\nconst ctx = filtered.map((r, i) => `[${i+1}] ${r.payload?.text}`).join('\\n\\n');\n\nreturn [{ json: { context: ctx, query: query, found: true } }];"
       },
       "id": "f1a7c5e0-0002-0000-0000-000000000008",
       "name": "Подготовить контекст",
@@ -159,15 +159,143 @@
     },
     {
       "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.found }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "f1a7c5e0-0002-0000-0000-000000000010",
+      "name": "Если найдено",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [850, 600]
+    },
+    {
+      "parameters": {
+        "jsCode": "const query = $('Подготовить контекст').first().json.query;\nconst context = $('Подготовить контекст').first().json.context;\nreturn [{ json: { answer: 'К сожалению, в базе знаний нет информации по данному запросу.', query: query, found: false } }];"
+      },
+      "id": "f1a7c5e0-0002-0000-0000-000000000016",
+      "name": "Ответ не найдено",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 750]
+    },
+    {
+      "parameters": {
+        "jsCode": "const query = $('Подготовить контекст').first().json.query;\nconst context = $('Подготовить контекст').first().json.context;\nreturn [{ json: { query: query, context: context } }];"
+      },
+      "id": "f1a7c5e0-0002-0000-0000-000000000011",
+      "name": "Подготовить промпт",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 500]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://ngw.devices.sberbank.ru:9443/api/v2/oauth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Basic MDE5ZTNhYjctNmYzZC03YTA5LWJhYjMtOTYxYWVhMTkxYWZkOmZjODk2NDVkLWZjMzQtNGY0YS04NjY0LWVmMWU4YWEzNTcxZg=="
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/x-www-form-urlencoded"
+            },
+            {
+              "name": "RqUID",
+              "value": "={{ $uuid }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "scope",
+              "value": "GIGACHAT_API_PERS"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "f1a7c5e0-0002-0000-0000-000000000012",
+      "name": "Токен GigaChat",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1350, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "const token = $input.first().json.body?.access_token || $input.first().json.access_token;\nconst prev = $('Подготовить промпт').first().json;\nconst prompt = `Ты — помощник по базе знаний компании Sun Rent. Отвечай на основе предоставленного контекста. Если информации нет в контексте — скажи об этом.\\n\\nКонтекст:\\n${prev.context}\\n\\nВопрос: ${prev.query}\\n\\nОтвет:`;\nreturn [{ json: { token: token, prompt: prompt } }];"
+      },
+      "id": "f1a7c5e0-0002-0000-0000-000000000013",
+      "name": "Объединить",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1600, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.giga.chat/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: 'GigaChat-2', messages: [{role:'user', content: $json.prompt}], max_tokens: 500, temperature: 0.3 }) }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "f1a7c5e0-0002-0000-0000-000000000014",
+      "name": "GigaChat LLM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1850, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst answer = body.choices?.[0]?.message?.content || body.error || 'Ошибка при генерации ответа';\nconst query = $('Подготовить промпт').first().json.query;\nreturn [{ json: { answer: answer, query: query, found: true } }];"
+      },
+      "id": "f1a7c5e0-0002-0000-0000-000000000015",
+      "name": "Извлечь ответ",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [2100, 400]
+    },
+    {
+      "parameters": {
         "respondWith": "json",
-        "responseBody": "={{ JSON.stringify({ answer: $json.context, query: $json.query, found: $json.found }) }}",
+        "responseBody": "={{ JSON.stringify({ answer: $json.answer, query: $json.query, found: $json.found }) }}",
         "options": {}
       },
       "id": "f1a7c5e0-0002-0000-0000-000000000009",
       "name": "Ответ Webhook",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [850, 600]
+      "position": [2350, 400]
     }
   ],
   "connections": {
@@ -184,15 +312,39 @@
       "main": [[{"node": "Отправить в Qdrant", "type": "main", "index": 0}]]
     },
     "Webhook": {
-      "main": [[{"node": "Подготовка", "type": "main", "index": 0}]]
+      "main": [[{"node": "Эмбеддинг вопроса", "type": "main", "index": 0}]]
     },
-    "Подготовка": {
+    "Эмбеддинг вопроса": {
       "main": [[{"node": "Поиск в Qdrant", "type": "main", "index": 0}]]
     },
     "Поиск в Qdrant": {
       "main": [[{"node": "Подготовить контекст", "type": "main", "index": 0}]]
     },
     "Подготовить контекст": {
+      "main": [[{"node": "Если найдено", "type": "main", "index": 0}]]
+    },
+    "Если найдено": {
+      "main": [
+        [{"node": "Подготовить промпт", "type": "main", "index": 0}],
+        [{"node": "Ответ не найдено", "type": "main", "index": 0}]
+      ]
+    },
+    "Подготовить промпт": {
+      "main": [[{"node": "Токен GigaChat", "type": "main", "index": 0}]]
+    },
+    "Токен GigaChat": {
+      "main": [[{"node": "Объединить", "type": "main", "index": 0}]]
+    },
+    "Объединить": {
+      "main": [[{"node": "GigaChat LLM", "type": "main", "index": 0}]]
+    },
+    "GigaChat LLM": {
+      "main": [[{"node": "Извлечь ответ", "type": "main", "index": 0}]]
+    },
+    "Извлечь ответ": {
+      "main": [[{"node": "Ответ Webhook", "type": "main", "index": 0}]]
+    },
+    "Ответ не найдено": {
       "main": [[{"node": "Ответ Webhook", "type": "main", "index": 0}]]
     }
   },
