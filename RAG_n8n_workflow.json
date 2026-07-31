@@ -43,7 +43,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const items = $input.all();\nconst VECTOR_SIZE = 256;\n\nfunction textToVector(text, size) {\n  const vector = new Array(size).fill(0);\n  const normalized = text.toLowerCase().replace(/[^а-яёa-z0-9]/g, ' ');\n  const words = normalized.split(/\\s+/).filter(w => w.length > 0);\n  for (const word of words) {\n    for (let i = 0; i < word.length; i++) {\n      const ch = word.charCodeAt(i);\n      vector[ch % size] += 1;\n      vector[(ch * 31) % size] += 0.5;\n    }\n  }\n  const norm = Math.sqrt(vector.reduce((s, v) => s + v * v, 0));\n  if (norm > 0) {\n    for (let i = 0; i < size; i++) vector[i] /= norm;\n  }\n  return vector;\n}\n\nconst points = [];\nfor (let i = 0; i < items.length; i++) {\n  const text = items[i].json.text;\n  const vector = textToVector(text, VECTOR_SIZE);\n  points.push({\n    id: i + 1,\n    vector: vector,\n    payload: { text: text, source: 'faq' }\n  });\n}\n\nreturn [{ json: { points: points, count: points.length } }];"
+        "jsCode": "const items = $input.all();\nconst VECTOR_SIZE = 256;\n\nfunction textToVector(text, size) {\n  const vector = new Array(size).fill(0);\n  const normalized = text.toLowerCase().replace(/[^\\u0430-\\u044fa-z0-9]/g, ' ');\n  const words = normalized.split(/\\s+/).filter(w => w.length > 0);\n  for (const word of words) {\n    for (let i = 0; i < word.length; i++) {\n      const ch = word.charCodeAt(i);\n      vector[ch % size] += 1;\n      vector[(ch * 31) % size] += 0.5;\n    }\n  }\n  const norm = Math.sqrt(vector.reduce((s, v) => s + v * v, 0));\n  if (norm > 0) {\n    for (let i = 0; i < size; i++) vector[i] /= norm;\n  }\n  return vector;\n}\n\nconst points = [];\nfor (let i = 0; i < items.length; i++) {\n  const text = items[i].json.text;\n  const vector = textToVector(text, VECTOR_SIZE);\n  points.push({\n    id: i + 1,\n    vector: vector,\n    payload: { text: text, source: 'faq' }\n  });\n}\n\nreturn [{ json: { points: points, count: points.length } }];"
       },
       "id": "f1a7c5e0-0001-0000-0000-000000000007",
       "name": "Создать эмбеддинг",
@@ -58,22 +58,14 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            {
-              "name": "api-key",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIiwic3ViamVjdCI6ImFwaS1rZXk6ZDViYzRiYTktYzc5ZC00ZDgzLThmMWItY2EyNTQ1MGIyMmRkIn0.BK6bb5SOkDhRX59rUaju53GP5YuTQUuZoZO-SHmHNXY"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
+            { "name": "api-key", "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIiwic3ViamVjdCI6ImFwaS1rZXk6ZDViYzRiYTktYzc5ZC00ZDgzLThmMWItY2EyNTQ1MGIyMmRkIn0.BK6bb5SOkDhRX59rUaju53GP5YuTQUuZoZO-SHmHNXY" },
+            { "name": "Content-Type", "value": "application/json" }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ points: $json.points }) }}",
-        "options": {
-          "timeout": 30000
-        }
+        "options": { "timeout": 30000 }
       },
       "id": "f1a7c5e0-0001-0000-0000-000000000009",
       "name": "Отправить в Qdrant",
@@ -124,22 +116,14 @@
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
-            {
-              "name": "api-key",
-              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIiwic3ViamVjdCI6ImFwaS1rZXk6ZDViYzRiYTktYzc5ZC00ZDgzLThmMWItY2EyNTQ1MGIyMmRkIn0.BK6bb5SOkDhRX59rUaju53GP5YuTQUuZoZO-SHmHNXY"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
+            { "name": "api-key", "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIiwic3ViamVjdCI6ImFwaS1rZXk6ZDViYzRiYTktYzc5ZC00ZDgzLThmMWItY2EyNTQ1MGIyMmRkIn0.BK6bb5SOkDhRX59rUaju53GP5YuTQUuZoZO-SHmHNXY" },
+            { "name": "Content-Type", "value": "application/json" }
           ]
         },
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={{ JSON.stringify({ limit: 100, with_payload: true, with_vector: false }) }}",
-        "options": {
-          "timeout": 30000
-        }
+        "options": { "timeout": 30000 }
       },
       "id": "f1a7c5e0-0002-0000-0000-000000000007",
       "name": "Получить документы из Qdrant",
@@ -149,7 +133,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst result = body.result || {};\nconst points = result.points || [];\nconst query = $('Подготовка').first().json.query;\n\nconst queryWords = query.toLowerCase().replace(/[^а-яёa-z0-9\\s]/g, ' ').split(/\\s+/).filter(w => w.length > 2);\n\nconst scored = [];\nfor (const p of points) {\n  const text = (p.payload?.text || '').toLowerCase();\n  let score = 0;\n  for (const word of queryWords) {\n    if (text.includes(word)) score += 1;\n  }\n  if (score > 0) {\n    scored.push({ text: p.payload.text, score: score });\n  }\n}\n\nscored.sort((a, b) => b.score - a.score);\nconst top = scored.slice(0, 4);\n\nif (top.length === 0) {\n  return [{ json: { context: '', query: query, found: false } }];\n}\n\nconst ctx = top.map((s, i) => s.text).join('\\n\\n');\nreturn [{ json: { context: ctx, query: query, found: true } }];"
+        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst result = body.result || {};\nconst points = result.points || [];\nconst query = $('Подготовка').first().json.query;\n\nconst queryWords = query.toLowerCase().replace(/[^\\u0430-\\u044fa-z0-9\\s]/g, ' ').split(/\\s+/).filter(w => w.length > 2);\n\nconst scored = [];\nfor (const p of points) {\n  const text = (p.payload?.text || '').toLowerCase();\n  let score = 0;\n  for (const word of queryWords) {\n    if (text.includes(word)) score += 1;\n  }\n  if (score > 0) {\n    scored.push({ text: p.payload.text, score: score });\n  }\n}\n\nscored.sort((a, b) => b.score - a.score);\nconst top = scored.slice(0, 4);\n\nif (top.length === 0) {\n  return [{ json: { context: '', query: query, found: false } }];\n}\n\nconst ctx = top.map((s) => s.text).join('\\n\\n');\nreturn [{ json: { context: ctx, query: query, found: true } }];"
       },
       "id": "f1a7c5e0-0002-0000-0000-000000000008",
       "name": "Поиск по тексту",
@@ -196,94 +180,13 @@
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "https://ngw.devices.sberbank.ru:9443/api/v2/oauth",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "Basic MDE5ZTNhYjctNmYzZC03YTA5LWJhYjMtOTYxYWVhMTkxYWZkOmZjODk2NDVkLWZjMzQtNGY0YS04NjY0LWVmMWU4YWEzNTcxZg=="
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/x-www-form-urlencoded"
-            },
-            {
-              "name": "RqUID",
-              "value": "={{ $uuid }}"
-            }
-          ]
-        },
-        "sendBody": true,
-        "contentType": "form-urlencoded",
-        "bodyParameters": {
-          "parameters": [
-            {
-              "name": "scope",
-              "value": "GIGACHAT_API_PERS"
-            }
-          ]
-        },
-        "options": {
-          "timeout": 30000
-        }
-      },
-      "id": "f1a7c5e0-0002-0000-0000-000000000012",
-      "name": "Токен GigaChat",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [1350, 400]
-    },
-    {
-      "parameters": {
-        "jsCode": "const token = $input.first().json.body?.access_token || $input.first().json.access_token;\nconst prev = $('Подготовить промпт').first().json;\nconst prompt = `Ты — помощник по базе знаний компании Sun Rent. Отвечай на основе предоставленного контекста. Если информации нет в контексте — скажи об этом.\n\nКонтекст:\n${prev.context}\n\nВопрос: ${prev.query}\n\nОтвет:`;\nreturn [{ json: { token: token, prompt: prompt } }];"
+        "jsCode": "const query = $('Поиск по тексту').first().json.query;\nconst context = $('Поиск по тексту').first().json.context;\n\nconst prompt = 'Ты — помощник по базе знаний компании Sun Rent. Отвечай на основе предоставленного контекста. Если информации нет в контексте — скажи об этом.\\n\\nКонтекст:\\n' + context + '\\n\\nВопрос: ' + query + '\\n\\nОтвет:';\n\ntry {\n  const rquid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => { const r = Math.random()*16|0; return (c==='x'?r:(r&0x3|0x8)).toString(16); });\n  const tokenResp = await this.helpers.httpRequest({\n    method: 'POST',\n    url: 'https://ngw.devices.sberbank.ru:9443/api/v2/oauth',\n    headers: {\n      'Authorization': 'Basic MDE5ZTNhYjctNmYzZC03YTA5LWJhYjMtOTYxYWVhMTkxYWZkOmZjODk2NDVkLWZjMzQtNGY0YS04NjY0LWVmMWU4YWEzNTcxZg==',\n      'Content-Type': 'application/x-www-form-urlencoded',\n      'RqUID': rquid\n    },\n    body: 'scope=GIGACHAT_API_PERS',\n    returnFullResponse: false\n  });\n  const token = tokenResp.access_token;\n  if (!token) return [{ json: { answer: 'Ошибка получения токена: ' + JSON.stringify(tokenResp), query, found: true } }];\n\n  const llmData = await this.helpers.httpRequest({\n    method: 'POST',\n    url: 'https://api.giga.chat/v1/chat/completions',\n    headers: {\n      'Authorization': 'Bearer ' + token,\n      'Content-Type': 'application/json'\n    },\n    body: JSON.stringify({\n      model: 'GigaChat-2',\n      messages: [{ role: 'user', content: prompt }],\n      max_tokens: 500,\n      temperature: 0.3\n    }),\n    returnFullResponse: false\n  });\n  const answer = llmData.choices?.[0]?.message?.content || 'Ошибка LLM: ' + JSON.stringify(llmData);\n  return [{ json: { answer: answer, query: query, found: true } }];\n} catch (e) {\n  return [{ json: { answer: 'Ошибка: ' + e.message, query: query, found: true } }];\n}"
       },
       "id": "f1a7c5e0-0002-0000-0000-000000000013",
-      "name": "Объединить",
+      "name": "GigaChat LLM",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [1600, 400]
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.giga.chat/v1/chat/completions",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
-            {
-              "name": "Authorization",
-              "value": "=Bearer {{ $json.token }}"
-            },
-            {
-              "name": "Content-Type",
-              "value": "application/json"
-            }
-          ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ model: 'GigaChat-2', messages: [{role:'user', content: $json.prompt}], max_tokens: 500, temperature: 0.3 }) }}",
-        "options": {
-          "timeout": 60000
-        }
-      },
-      "id": "f1a7c5e0-0002-0000-0000-000000000014",
-      "name": "GigaChat LLM",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [1850, 400]
-    },
-    {
-      "parameters": {
-        "jsCode": "const body = $input.first().json.body || $input.first().json;\nconst answer = body.choices?.[0]?.message?.content || body.error || 'Ошибка при генерации ответа';\nconst query = $('Подготовить промпт').first().json.query;\nreturn [{ json: { answer: answer, query: query, found: true } }];"
-      },
-      "id": "f1a7c5e0-0002-0000-0000-000000000015",
-      "name": "Извлечь ответ",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [2100, 400]
     },
     {
       "parameters": {
@@ -300,52 +203,43 @@
   ],
   "connections": {
     "Manual Trigger": {
-      "main": [[{"node": "Документ", "type": "main", "index": 0}]]
+      "main": [[{ "node": "Документ", "type": "main", "index": 0 }]]
     },
     "Документ": {
-      "main": [[{"node": "Нарезка на чанки", "type": "main", "index": 0}]]
+      "main": [[{ "node": "Нарезка на чанки", "type": "main", "index": 0 }]]
     },
     "Нарезка на чанки": {
-      "main": [[{"node": "Создать эмбеддинг", "type": "main", "index": 0}]]
+      "main": [[{ "node": "Создать эмбеддинг", "type": "main", "index": 0 }]]
     },
     "Создать эмбеддинг": {
-      "main": [[{"node": "Отправить в Qdrant", "type": "main", "index": 0}]]
+      "main": [[{ "node": "Отправить в Qdrant", "type": "main", "index": 0 }]]
     },
     "Webhook": {
-      "main": [[{"node": "Подготовка", "type": "main", "index": 0}]]
+      "main": [[{ "node": "Подготовка", "type": "main", "index": 0 }]]
     },
     "Подготовка": {
-      "main": [[{"node": "Получить документы из Qdrant", "type": "main", "index": 0}]]
+      "main": [[{ "node": "Получить документы из Qdrant", "type": "main", "index": 0 }]]
     },
     "Получить документы из Qdrant": {
-      "main": [[{"node": "Поиск по тексту", "type": "main", "index": 0}]]
+      "main": [[{ "node": "Поиск по тексту", "type": "main", "index": 0 }]]
     },
     "Поиск по тексту": {
-      "main": [[{"node": "Если найдено", "type": "main", "index": 0}]]
+      "main": [[{ "node": "Если найдено", "type": "main", "index": 0 }]]
     },
     "Если найдено": {
       "main": [
-        [{"node": "Подготовить промпт", "type": "main", "index": 0}],
-        [{"node": "Ответ не найдено", "type": "main", "index": 0}]
+        [{ "node": "Подготовить промпт", "type": "main", "index": 0 }],
+        [{ "node": "Ответ не найдено", "type": "main", "index": 0 }]
       ]
     },
     "Подготовить промпт": {
-      "main": [[{"node": "Токен GigaChat", "type": "main", "index": 0}]]
-    },
-    "Токен GigaChat": {
-      "main": [[{"node": "Объединить", "type": "main", "index": 0}]]
-    },
-    "Объединить": {
-      "main": [[{"node": "GigaChat LLM", "type": "main", "index": 0}]]
+      "main": [[{ "node": "GigaChat LLM", "type": "main", "index": 0 }]]
     },
     "GigaChat LLM": {
-      "main": [[{"node": "Извлечь ответ", "type": "main", "index": 0}]]
-    },
-    "Извлечь ответ": {
-      "main": [[{"node": "Ответ Webhook", "type": "main", "index": 0}]]
+      "main": [[{ "node": "Ответ Webhook", "type": "main", "index": 0 }]]
     },
     "Ответ не найдено": {
-      "main": [[{"node": "Ответ Webhook", "type": "main", "index": 0}]]
+      "main": [[{ "node": "Ответ Webhook", "type": "main", "index": 0 }]]
     }
   },
   "settings": {
